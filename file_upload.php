@@ -1,24 +1,24 @@
 <?php
+
 /*
-    File Manager
-    Copyright (C) 2015  Daniel Biro
+	File Manager
+	Copyright (C) 2015  Daniel Biro
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-/* -------------------
+/*  -------------------
 		Explorer
 	-------------------  */
 
@@ -62,340 +62,440 @@ $css['sprite'] = <<<'EOD'
 .icon.image { background-position: -588px 0px;  } 
 EOD;
 
-class FileHandler {
-
-	public static function rename($path, $newname) 
-	{
-		
-		$directory = FileManager::getDirectory($path);
-		return rename($path, $directory.'/'.$newname);
-
-	}
-
-	public static function deleteFile($path) 
-	{
-
-		if(is_file($path)){
-			return unlink($path);
-		}
-
-	}
-
-	public static function deleteDir($dir) 
-	{
-
-		if(is_dir($dir)) {
-			$files = scandir($dir);
-			foreach ($files as $file) {
-
-				if ($file == "." && $file == "..") 
-					continue;
-
-				if (filetype($dir."/".$file) == "dir") //subdirectory
-					FileManager::deleteDir($dir."/".$file); 
-				else 
-					unlink($dir."/".$file);
-				
-			}
-			rmdir($dir);
-		}
-
-	}
-
-	public static function getDirectory($path) 
-	{
-
-		$path_parts = pathinfo($path);
-		return $path_parts['dirname'];
-
-	}
-
-	public static function getFilename($path, $withextension = FALSE) 
-	{
-
-		$path_parts = pathinfo($path);
-		$filename = $path_parts['filename'];
-
-		if($withextension && isset($path_parts['extension']))
-			$filename .= '.'.$path_parts['extension'];
-
-		return $path_parts['filename'];
-
-	}
-
+class FileHandler
+{
+    
+    public static function rename($path, $newname) {
+        
+        $directory = FileManager::getDirectory($path);
+        return rename($path, $directory . '/' . $newname);
+    }
+    
+    public static function deleteFile($path) {
+        
+        if (is_file($path)) {
+            return unlink($path);
+        }
+    }
+    
+    public static function deleteDir($dir) {
+        
+        if (is_dir($dir)) {
+            $files = scandir($dir);
+            foreach ($files as $file) {
+                
+                if ($file == "." && $file == "..") continue;
+                
+                if (filetype($dir . "/" . $file) == "dir")
+                 //subdirectory
+                FileManager::deleteDir($dir . "/" . $file);
+                else unlink($dir . "/" . $file);
+            }
+            rmdir($dir);
+        }
+    }
+    
+    public static function getDirectory($path) {
+        
+        $path_parts = pathinfo($path);
+        return $path_parts['dirname'];
+    }
+    
+    public static function getFilename($path, $withextension = FALSE) {
+        
+        $path_parts = pathinfo($path);
+        $filename = $path_parts['filename'];
+        
+        if ($withextension && isset($path_parts['extension'])) $filename.= '.' . $path_parts['extension'];
+        
+        return $path_parts['filename'];
+    }
 }
 
-class ImageResizer 
+class ImageResizer
 {
-
-	var $image;
-
-	var $jpg_quality = 85;
-
-	var $image_type;
-
-	var $width;
-	var $height;
-
-	public function __construct($filename) {
-
-    	$info = getimagesize($filename);
-
+    
+    var $image;
+    
+    var $jpg_quality = 85;
+    
+    var $image_type;
+    
+    var $width;
+    var $height;
+    
+    public function __construct($filename) {
+        
+        $info = getimagesize($filename);
+        
         if (!$info) {
             throw new \Exception('Could not read ' . $filename);
         }
-
-        list (
-            $this->width,
-            $this->height,
-            $this->source_type
-        ) = $info;
-
+        
+        list($this->width, $this->height, $this->source_type) = $info;
+        
         switch ($this->image_type) {
-
             case IMAGETYPE_GIF:
                 $this->image = imagecreatefromgif($filename);
-            	break;
+                break;
 
             case IMAGETYPE_JPEG:
                 $this->image = imagecreatefromjpeg($filename);
-            	break;
+                break;
 
             case IMAGETYPE_PNG:
                 $this->image = imagecreatefrompng($filename);
-            	break;
+                break;
 
             default:
                 throw new \Exception('Unsupported image type');
-            	break;
+                break;
         }
-
+        
         return $this;
-
     }
-
-
-	public function resizeToWidth($new_width, $allow_enlarge)
-    {
-        $ratio  = $new_width / $this->width;
+    
+    public function resizeToWidth($new_width, $allow_enlarge) {
+        $ratio = $new_width / $this->width;
         $new_height = $this->height * $ratio;
         $this->resize($new_width, $new_height, $allow_enlarge);
         return $this;
     }
+    
+    public function outputToBrowser() {
+        
+        header('Content-Type: image/jpeg');
+        
+        imagejpeg($im, NULL, $this->jpg_quality);
+        
+        // Free up memory
+        imagedestroy($im);
+    }
+}
 
-	public function outputToBrowser() {
-		
-		header('Content-Type: image/jpeg');
-		
-		imagejpeg($im, NULL, $this->jpg_quality);
+abstract class FSObject
+{
+    
+    public $name;
+    var $location;
+    
+    var $creationtime;
+    public $modtime;
+    var $accesstime;
+    
+    public $size;
+    public $type;
+    
+    public $readable;
+    public $writable;
+    public $executable;
+    
+    function __construct($path) {
+        $this->location = $path;
+        
+        $this->name = $path;
+        
+        $this->size = $this->querySize();
+        $this->type = $this->queryType();
+        
+        list($this->creationtime, $this->modtime, $this->accesstime) = $this->queryTimestamps();
+        
+        $this->readable = $this->isReadable();
+        $this->writable = $this->isWriteable();
+        $this->executable = $this->isExecutable();
+    }
+    
+    abstract protected function querySize();
+    abstract protected function queryType();
+    
+    private function queryTimestamps() {
+        return array(filectime($this->location), filemtime($this->location), fileatime($this->location));
+    }
+    
+    public function getPrettySize() {
+        
+        $decimals = 2;
+        $sz = 'BKMGTP';
+        $factor = floor((strlen($this->size) - 1) / 3);
+        return sprintf("%.{$decimals}f", $this->size / pow(1024, $factor)) . @$sz[$factor];
+    }
+    
+    public function splitLocation() {
+        return explode(PATH_SEPARATOR, $this->location);
+    }
+    
+    public function isReadable() {
+        return is_readable($this->location);
+    }
+    
+    public function isWriteable() {
+        return is_writable($this->location);
+    }
+    
+    public function isExecutable() {
+        return is_executable($this->location);
+    }
+    
+    public function getPrettyMTime() {
+        
+        $now = time();
+        $diff = time() - $this->modtime;
+        $chunks = array(array(60 * 60, 'hour'), array(60, 'minute'), array(1, 'second'));
+        
+        for ($i = 0, $j = count($chunks); $i < $j; $i++) {
+            $seconds = $chunks[$i][0];
+            $name = $chunks[$i][1];
+            if (($count = floor($diff / $seconds)) != 0) {
+                break;
+            }
+        }
+        
+        if ($name == 'second' && $count < 20) return 'a few seconds ago';
+        else if ($name == 'minute' && $count > 3) return ($count == 1) ? '1 ' . $name . ' ago' : "$count {$name}s ago";
+        
+        return date($GLOBALS['config']['date_format'], $this->modtime);
+    }
+}
 
-		// Free up memory
-		imagedestroy($im);
-	
+class Directory extends FSObject
+{
+    
+    public function queryType() {
+        return 'directory';
+    }
+    
+    protected function querySize() {
+        return filesize($this->location);
+    }
+}
+
+class File extends FSObject
+{
+    
+    var $extension;
+    
+    public function queryType() {
+        
+        $known_filetypes = array(
+        'image' => array('jpg', 'jpeg', 'png', 'bmp', 'gif', 'tif', 'tiff', 'tga', 'webp', 'svg', 'ico'), 'pdf' => array('pdf'), 'document' => array('doc', 'docx', 'odt', 'rtf'), 'spreadsheet' => array('xls', 'xlsx', 'ods'), 'keynote' => array('ppt', 'pptx'), 'text' => array('txt', 'csv', 'css', 'js', 'html'), 'website' => array('html', 'htm'), 'source' => array('xml', 'rss', 'php', 'js', 'coffee', 'css', 'less', 'saas', 'scss', 'c', 'cpp', 'h', 'hpp', 'py', 'pl', 'rb', 'cs', 'java', 'lua'), 'audio' => array('mp3', 'aac', 'flac', 'wav', 'wma'), 'compressed' => array('zip', 'rar', '7z', 'tar', 'gz', 'tgz'), 'video' => array('wmv', 'avi', 'mov', 'mp4', 'flv', 'webm', 'mpg', 'mpeg', 'mkv'), 'executable' => array('exe', 'sh', 'bat', 'dll'));
+        
+        foreach ($known_filetypes as $filetype) {
+            return array_search($this->extension, $filetype);
+        }
+    }
+    
+    protected function querySize() {
+        return filesize($this->location);
+    }
+}
+
+//singleton pattern
+class App
+{
+    
+    var $current_dir;
+    public $filelist = array();
+    
+    public static function getInstance() {
+        static $instance = null;
+        if (null === $instance) {
+            $instance = new static ();
+        }
+        
+        return $instance;
+    }
+    
+    protected function __construct() {
+    }
+    
+    private function __clone() {
+    }
+    
+    private function __wakeup() {
+    }
+    
+    public function listFiles() {
+        $files = scandir('.');
+        foreach ($files as $file) {
+            if (is_dir($file)) {
+                $this->filelist[] = new Directory($file);
+            } else $this->filelist[] = new File($file);
+        }
+    }
+    
+    TODO function parse_path() {
+
+        $path = array();
+        if (isset($_SERVER['REQUEST_URI'])) {
+
+            
+            $path['base'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '\/');
+            $path['call_utf8'] = substr(urldecode($request_path[0]), strlen($path['base']) + 1);
+            $path['call'] = utf8_decode($path['call_utf8']);
+            if($path['call'] == basename($_SERVER['PHP_SELF'])) {
+                $path['call'] = '';
+            }
+            $path['call_parts'] = explode('/', $path['call']);
+            
+            $path['query_utf8'] = urldecode($request_path[1]);
+            $path['query'] = utf8_decode(urldecode($request_path[1]));
+            $vars = explode('&', $path['query']);
+            foreach ($vars as $var) {
+                $t = explode('=', $var);
+                $path['query_vars'][$t[0]] = $t[1];
+            }
+
+        }
+
+        return $path;
+    }
+}
+
+abstract class UIElement 
+{
+	protected $html = '';
+
+	protected $css_class = '';
+	protected $css_id = '';
+
+	public function renderHTML();
+
+	public function setClass($class) {
+		$this->css_class = $class;
+		return $this;
+	} 
+
+	public function setID($id) {
+		$this->$css_id = $id;
+		return $this;
 	}
 
 }
 
-abstract class FSObject 
+class UILink extends UIElement
 {
 
-	public $name;
-	var $location;
+	protected $href = '';
+	protected $text = '';
 
-	var $creationtime;
-	public $modtime;
-	var $accesstime;
-	
-	public $size;
-	public $type;
-
-	public $readable;
-	public $writable;
-	public $executable;
-
-	function __construct($path) {
-		$this->location = $path;
-
-		$this->name = $path;
-
-		$this->size = $this->querySize();
-		$this->type = $this->queryType();
-
-		list($this->creationtime, $this->modtime, $this->accesstime) = $this->queryTimestamps();
-
-		$this->readable = $this->isReadable();
-		$this->writable = $this->isWriteable();
-		$this->executable = $this->isExecutable();
-
+	public function __construct($href, $text) {
+		$this->href = $href;
+		$this->text = $text;
 	}
 
-	abstract protected function querySize();
-	abstract protected function queryType();
-
-	private function queryTimestamps() {
-		return array(filectime($this->location), filemtime($this->location), fileatime($this->location));
-	}
-
-	public function getPrettySize() {
-
-		$decimals = 2;
-		$sz = 'BKMGTP';
-		$factor = floor((strlen($this->size) - 1) / 3);
-		return sprintf("%.{$decimals}f", $this->size / pow(1024, $factor)) . @$sz[$factor];
-
-	}
-
-	public function splitLocation() {
-		return explode(PATH_SEPARATOR, $this->location);
-	}
-
-	public function isReadable() {
-		return is_readable($this->location); 
-	}
-
-	public function isWriteable() {
-		return is_writable($this->location); 
-	}
-
-	public function isExecutable() {
-		return is_executable($this->location);
-	}
-
-
-	public function getPrettyMTime() {
-
-
-		$now = time();
-		$diff = time() - $this->modtime;
-		$chunks = array(
-	        array(60 * 60 , 'hour'),
-	        array(60 , 'minute'),
-	        array(1 , 'second')
-	    );
-
-
-	    for ($i = 0, $j = count($chunks); $i < $j; $i++) {
-	        $seconds = $chunks[$i][0];
-	        $name = $chunks[$i][1];
-	        if (($count = floor($diff / $seconds)) != 0) {
-	            break;
-	        }
-	    }
-
-	    if($name == 'second' && $count < 20)
-	    	return 'a few seconds ago';
-
-	    else if($name == 'minute' && $count > 3)
-	    	return ($count == 1) ? '1 '.$name.' ago' : "$count {$name}s ago";
-
-	    return date($GLOBALS['config']['date_format'], $this->modtime);
-
+	public function renderHTML() {
+		$this->html .= '<a href="'.$this->href.'">'.$this->text.'</a>';
 	}
 
 }
 
-class App {
+class UITable extends UIElement
+{
+	private $columns = array();
+	private $rows = array();
 
-	var $current_dir;
-	public $filelist = array();
+	public function __construct($columns, $class = '', $id = '') {
+		$this->columns = $columns;
+		$this->css_class = $class;
+		$this->id = $id;
 
+		return $this;
+    }
 
-	public function listFiles() {
-		$files = scandir('.');
-		foreach($files as $file) {
-			if(is_dir($file)) {
-				$this->filelist[] = new Directory($file);
-			} else
-				$this->filelist[] = new File($file);
+	public function addColumn($column) {
+		$this->columns[] = $column;
+
+		return $this;
+	}
+
+	public function addRow($row) {
+		$this->rows[] = $row;
+
+		return $this;
+	}
+
+	public function renderHead() {
+		$this->html .= '<thead><tr>';
+		foreach($this->columns as $column) {
+			$this->html .= '<th>'.$column.'</th>';
+		}
+		$this->html .= '</tr></thead>';
+	}
+
+	public function renderBody() {
+		$this->html .= '<tbody>';
+		foreach($this->rows as $row) {
+
+			$this->html .= '<tr>';
+
+			foreach($row as $column) {
+				$this->html .= '<td>'.$column.'</td>';
+			}
+
+			$this->html .= '</tr>';
+
+		}
+		$this->html .= '</tbody>';
+	}
+
+	public function renderHTML() {
+		if($this->css_class) !=
+		$this->html .= '<table'.(($this->css_id != '')?' id="'.$this->css_id.'"':'').(($this->css_class != '')?' class="'.$this->css_class.'"':'').'>';
+			$this->renderHead();
+			$this->renderBody();
+		$this->html .= '</table>';
+
+		return $this->html;
+	}
+
+}
+
+class UI
+{
+    
+    private static $need_html = true;
+    private static $body_text = '';
+
+    private static function renderFileOperations($path) {
+
+    	$html  = new UILink('index.php/delete/'.$path, 'Delete')   -> renderHTML();
+    	$html .= new UILink('index.php/rename/'.$path, 'Rename')   -> renderHTML();
+    	$html .= new UILink('index.php/move/'.$path, 'Move')       -> renderHTML();
+    	$html .= new UILink('index.php/details/'.$path, 'Details') -> renderHTML();
+
+    	return $html;
+
+    }
+
+    
+    public static function renderFileList() {
+        $app = App::getInstance();
+        $app->listfiles();
+        $filelist = $app->filelist;
+
+        $table = new UITable(array('name', 'size', 'modified', 'permissions', 'actions'), '', 'main-table');
+
+		foreach ($app->filelist as $item) {
+			$table->addRow(
+				array(
+					'<div class="icon <?php echo $item->queryType() ?>"></div>'.$item->name,
+					$item->getPrettySize(),
+					$item->getPrettyMTime(),
+					($item->readable ? 'read ' : '') . ($item->writable ? 'write ' : '') . ($item->executable ? 'execute' : ''),
+					UI::renderFileOperations()
+					));
 		}
 
-	}
+		$body_text .= $table->getHTML();
 
-	TODO function parse_path() {
-		  $path = array();
-		  if (isset($_SERVER['REQUEST_URI'])) {
-		    $request_path = explode('?', $_SERVER['REQUEST_URI']);
+    }
 
-		    $path['base'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '\/');
-		    $path['call_utf8'] = substr(urldecode($request_path[0]), strlen($path['base']) + 1);
-		    $path['call'] = utf8_decode($path['call_utf8']);
-		    if ($path['call'] == basename($_SERVER['PHP_SELF'])) {
-		      $path['call'] = '';
-		    }
-		    $path['call_parts'] = explode('/', $path['call']);
+    public static function renderBody() {
+    	return App::body_text;
+    }
 
-		    $path['query_utf8'] = urldecode($request_path[1]);
-		    $path['query'] = utf8_decode(urldecode($request_path[1]));
-		    $vars = explode('&', $path['query']);
-		    foreach ($vars as $var) {
-		      $t = explode('=', $var);
-		      $path['query_vars'][$t[0]] = $t[1];
-		    }
-		  }
-		return $path;
-	}
 
 }
-
-class Directory extends FSObject {
-
-	public function queryType() {
-		return 'directory';
-	}
-
-	protected function querySize() {
-		return filesize($this->location);
-	}
-
-	
-
-}
-
-
-
-class File extends FSObject {
-
-	var $extension;
-
-	public function queryType() {
-
-		$known_filetypes = array(
-
-			'image' 			=> array('jpg', 'jpeg', 'png', 'bmp', 'gif', 'tif', 'tiff', 'tga', 'webp', 'svg', 'ico'),
-			'pdf'				=> array('pdf'),
-			'document'			=> array('doc', 'docx', 'odt', 'rtf'),
-			'spreadsheet'		=> array('xls', 'xlsx', 'ods'),
-			'keynote'			=> array('ppt', 'pptx'),
-			'text'				=> array('txt', 'csv', 'css', 'js', 'html'),
-			'website'			=> array('html', 'htm'),
-			'source'			=> array('xml', 'rss', 'php', 'js', 'coffee', 'css', 'less', 'saas', 'scss', 'c', 'cpp', 'h', 'hpp', 'py', 'pl', 'rb', 'cs', 'java', 'lua'),
-			'audio'				=> array('mp3', 'aac', 'flac', 'wav', 'wma'),
-			'compressed'		=> array('zip', 'rar', '7z', 'tar', 'gz', 'tgz'),
-			'video'				=> array('wmv', 'avi', 'mov', 'mp4', 'flv', 'webm', 'mpg', 'mpeg', 'mkv'),
-			'executable'		=> array('exe', 'sh', 'bat', 'dll')
-
-		);
-
-		foreach($known_filetypes as $filetype) {
-			return array_search($this->extension, $filetype);
-		}
-
-	}
-
-	protected function querySize() {
-		return filesize($this->location);
-	}
-	
-}
-
-/*class UI {
-	public static 
-}*/
-
-
-$app = new App();
-$app->listFiles();
-
 
 ?>
 
@@ -447,34 +547,8 @@ td {
 	</style>
 </head>
 <body>
-	<table id="main-table">
-		<thead>
-			<tr>
-				<th>Name</th>
-				<th>Size</th>
-				<th>Modified</th>
-				<th>Permissions</th>
-				<th>Actions</th>
-			</tr>
-		</thead>
-		<tbody id="list">
-			<?php 
-			foreach($app->filelist as $item) {
-			?>
-			<tr>
-				<td><div class='icon <?=$item->queryType()?>'></div><?=$item->name?></td>
-				<td><?=$item->getPrettySize()?></td>
-				<td><?=$item->getPrettyMTime()?></td>
-				<td><?=($item->readable?'read ':'').($item->writable?'write ':'').($item->executable?'execute':'')?></td>
-				<td>
-					<a href="index.php/delete/<?=$item->name?>">Delete</a>
-					<a href="index.php/rename/<?=$item->name?>">Rename</a>
-					<a href="index.php/move/<?=$item->name?>">Move</a>
-				</div>
-			</tr>
-			<?php } ?>
-		</tbody>
-	</table>
-	<p><?=("Rendered in ".sprintf("%.3f", (microtime(true) - $start))."ms");?></p>
+	<?=UI::renderBody?>
+	
+	<p><?php echo ("Rendered in " . sprintf("%.3f", (microtime(true) - $start)) . "ms"); ?></p>
 </body>
 </html>
