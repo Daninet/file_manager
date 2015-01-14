@@ -365,6 +365,32 @@ abstract class UIElement
 		return $this;
 	}
 
+	public function getHTMLClass($no_attr = false) {
+		
+		if($this->css_class == '')
+			return '';
+
+		$html = ' '; //leading space
+		if(!$no_attr)
+			$html .= 'class="';
+
+		$html .= $this->css_class;
+
+		if(!$no_attr)
+			$html .= '"';
+
+		return $html;
+	}
+
+	public function getHTMLID() {
+
+		if($this->id_class == '')
+			return '';
+
+		return ' id="'.$this->id_class.'"';
+
+	}
+
 }
 
 class UILink extends UIElement
@@ -376,12 +402,37 @@ class UILink extends UIElement
 	public function __construct($href, $text) {
 		$this->href = $href;
 		$this->text = $text;
+		return $this;
 	}
 
 	public function renderHTML() {
-		$this->html .= '<a href="'.$this->href.'">'.$this->text.'</a>';
+
+		$this->html .= '<a href="'.$this->href.'"'.$this->getHTMLClass().$this->getHTMLID().'>'.$this->text.'</a>';
+
+		return $this->html;
 	}
 
+}
+
+class UIIcon extends UIElement
+{
+	protected $href = '';
+	protected $icon = '';
+
+	public function __construct($icon, $href = '') {
+		$this->icon = $icon;
+		$this->href = $href;
+
+		return $this;
+	}
+
+	public function renderHTML() {
+		
+		$this->html .= '<span href="'.$this->href.'" class="icon '.$this->icon.$this->getHTMLClass(true).'"'..$this->getHTMLID().'>'.$this->text.'</a>';
+
+		return $this->html;
+
+	}
 }
 
 class UITable extends UIElement
@@ -435,7 +486,7 @@ class UITable extends UIElement
 
 	public function renderHTML() {
 		if($this->css_class) !=
-		$this->html .= '<table'.(($this->css_id != '')?' id="'.$this->css_id.'"':'').(($this->css_class != '')?' class="'.$this->css_class.'"':'').'>';
+		$this->html .= '<table'.$this->getHTMLID().$this->getHTMLClass().'>';
 			$this->renderHead();
 			$this->renderBody();
 		$this->html .= '</table>';
@@ -459,9 +510,7 @@ class UI
     	$html .= new UILink('index.php/details/'.$path, 'Details') -> renderHTML();
 
     	return $html;
-
     }
-
     
     public static function renderFileList() {
         $app = App::getInstance();
