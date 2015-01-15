@@ -172,11 +172,11 @@ abstract class FSObject
 {
     
     public $name;
-    var $location;
+    public $location;
     
-    var $creationtime;
+    public $creationtime;
     public $modtime;
-    var $accesstime;
+    public $accesstime;
     
     public $size;
     public $type;
@@ -260,8 +260,17 @@ class Directory extends FSObject
     }
     
     protected function querySize() {
-        return filesize($this->location);
+		
+		$size = 0;
+	    $files = glob($directory.'/*');
+	    foreach($files as $path){
+	        is_file($path) && $size += filesize($path);
+	        is_dir($path) && $this->querySize($path);
+	    }
+	    return $size;
+
     }
+
 }
 
 class File extends FSObject
@@ -522,7 +531,7 @@ class UI
 		foreach ($app->filelist as $item) {
 			$table->addRow(
 				array(
-					'<div class="icon <?php echo $item->queryType() ?>"></div>'.$item->name,
+					new UIIcon($item->queryType())->renderHTML().$item->name,
 					$item->getPrettySize(),
 					$item->getPrettyMTime(),
 					($item->readable ? 'read ' : '') . ($item->writable ? 'write ' : '') . ($item->executable ? 'execute' : ''),
@@ -530,7 +539,7 @@ class UI
 					));
 		}
 
-		$body_text .= $table->getHTML();
+		$body_text .= $table->renderHTML();
 
     }
 
