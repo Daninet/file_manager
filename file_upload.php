@@ -23,13 +23,16 @@
 	-------------------  */
 
 namespace SweetFileManager;
-
 $start = microtime(true);
 
 $config = array();
 $config['lang'] = 'en';
 $config['thumbnails'] = true;
 $config['date_format'] = 'Y-m-d H:i';
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 
 $css['dropzone'] = <<<'EOD'
 .dropzone,.dropzone *,.dropzone-previews,.dropzone-previews *{box-sizing:border-box}.dropzone{position:relative}.dropzone.dz-clickable,.dropzone.dz-clickable .dz-message,.dropzone.dz-clickable .dz-message span{cursor:pointer}.dropzone.dz-clickable *{cursor:default}.dropzone .dz-message{opacity:1}.dropzone.dz-drag-hover{border-color:rgba(0,0,0,.15);background:rgba(0,0,0,.04)}.dropzone .dz-preview,.dropzone-previews .dz-preview{background:rgba(255,255,255,.8);position:relative;display:inline-block;margin:17px;vertical-align:top;border:1px solid #acacac;padding:6px}.dropzone .dz-preview.dz-file-preview [data-dz-thumbnail],.dropzone-previews .dz-preview.dz-file-preview [data-dz-thumbnail]{display:none}.dropzone .dz-preview .dz-details,.dropzone-previews .dz-preview .dz-details{width:100px;height:100px;position:relative;background:#ebebeb;padding:5px;margin-bottom:22px}.dropzone .dz-preview .dz-details .dz-filename,.dropzone-previews .dz-preview .dz-details .dz-filename{overflow:hidden;height:100%}.dropzone .dz-preview .dz-details img,.dropzone-previews .dz-preview .dz-details img{absolute:top left;width:100px;height:100px}.dropzone .dz-preview .dz-details .dz-size,.dropzone-previews .dz-preview .dz-details .dz-size{absolute:bottom -28px left 3px;height:28px;line-height:28px}.dropzone .dz-preview.dz-error .dz-error-mark,.dropzone .dz-preview.dz-success .dz-success-mark,.dropzone-previews .dz-preview.dz-error .dz-error-mark,.dropzone-previews .dz-preview.dz-success .dz-success-mark{display:block}.dropzone .dz-preview:hover .dz-details img,.dropzone-previews .dz-preview:hover .dz-details img{display:none}.dropzone .dz-preview .dz-error-mark,.dropzone .dz-preview .dz-success-mark,.dropzone-previews .dz-preview .dz-error-mark,.dropzone-previews .dz-preview .dz-success-mark{position:absolute;width:40px;height:40px;font-size:30px;text-align:center;right:-10px;top:-10px}.dropzone .dz-preview .dz-success-mark,.dropzone-previews .dz-preview .dz-success-mark{color:#8cc657}.dropzone .dz-preview .dz-error-mark,.dropzone-previews .dz-preview .dz-error-mark{color:#ee162d}.dropzone .dz-preview .dz-progress,.dropzone-previews .dz-preview .dz-progress{position:absolute;top:100px;left:6px;right:6px;height:6px;background:#d7d7d7;display:none}.dropzone .dz-preview .dz-progress .dz-upload,.dropzone-previews .dz-preview .dz-progress .dz-upload{display:block;bottom:0;background-color:#8cc657}.dropzone .dz-preview.dz-processing .dz-progress,.dropzone-previews .dz-preview.dz-processing .dz-progress{display:block}.dropzone .dz-preview .dz-error-message,.dropzone-previews .dz-preview .dz-error-message{absolute:top -5px left -20px;background:rgba(245,245,245,.8);padding:8px 10px;color:#800;min-width:140px;max-width:500px;z-index:500}.dropzone .dz-preview:hover.dz-error .dz-error-message,.dropzone-previews .dz-preview:hover.dz-error .dz-error-message{display:block}.dropzone{border:1px solid rgba(0,0,0,.03);min-height:360px;-webkit-border-radius:3px;border-radius:3px;background:rgba(0,0,0,.03);padding:23px}.dropzone .dz-default.dz-message{opacity:1;-ms-filter:none;filter:none;-webkit-transition:opacity .3s ease-in-out;-moz-transition:opacity .3s ease-in-out;-o-transition:opacity .3s ease-in-out;-ms-transition:opacity .3s ease-in-out;transition:opacity .3s ease-in-out;background-image:url(../images/spritemap.png);background-repeat:no-repeat;background-position:0 0;position:absolute;width:428px;height:123px;margin-left:-214px;margin-top:-61.5px;top:50%;left:50%}@media all and (-webkit-min-device-pixel-ratio:1.5),(min--moz-device-pixel-ratio:1.5),(-o-min-device-pixel-ratio:1.5/1),(min-device-pixel-ratio:1.5),(min-resolution:138dpi),(min-resolution:1.5dppx){.dropzone .dz-default.dz-message{background-image:url(../images/spritemap@2x.png);-webkit-background-size:428px 406px;-moz-background-size:428px 406px;background-size:428px 406px}}.dropzone .dz-default.dz-message span{display:none}.dropzone.dz-square .dz-default.dz-message{background-position:0 -123px;width:268px;margin-left:-134px;height:174px;margin-top:-87px}.dropzone.dz-drag-hover .dz-message{opacity:.15;-ms-filter:"alpha(Opacity=15)";filter:alpha(opacity=15)}.dropzone.dz-started .dz-message{display:block;opacity:0;-ms-filter:"alpha(Opacity=0)";filter:alpha(opacity=0)}.dropzone .dz-preview,.dropzone-previews .dz-preview{-webkit-box-shadow:1px 1px 4px rgba(0,0,0,.16);box-shadow:1px 1px 4px rgba(0,0,0,.16);font-size:14px}.dropzone .dz-preview.dz-image-preview:hover .dz-details img,.dropzone-previews .dz-preview.dz-image-preview:hover .dz-details img{display:block;opacity:.1;-ms-filter:"alpha(Opacity=10)";filter:alpha(opacity=10)}.dropzone .dz-preview.dz-error .dz-error-mark,.dropzone .dz-preview.dz-success .dz-success-mark,.dropzone-previews .dz-preview.dz-error .dz-error-mark,.dropzone-previews .dz-preview.dz-success .dz-success-mark{opacity:1;-ms-filter:none;filter:none}.dropzone .dz-preview.dz-error .dz-progress .dz-upload,.dropzone-previews .dz-preview.dz-error .dz-progress .dz-upload{background:#ee1e2d}.dropzone .dz-preview .dz-error-mark,.dropzone .dz-preview .dz-success-mark,.dropzone-previews .dz-preview .dz-error-mark,.dropzone-previews .dz-preview .dz-success-mark{display:block;opacity:0;-ms-filter:"alpha(Opacity=0)";filter:alpha(opacity=0);-webkit-transition:opacity .4s ease-in-out;-moz-transition:opacity .4s ease-in-out;-o-transition:opacity .4s ease-in-out;-ms-transition:opacity .4s ease-in-out;transition:opacity .4s ease-in-out;background-image:url(../images/spritemap.png);background-repeat:no-repeat}@media all and (-webkit-min-device-pixel-ratio:1.5),(min--moz-device-pixel-ratio:1.5),(-o-min-device-pixel-ratio:1.5/1),(min-device-pixel-ratio:1.5),(min-resolution:138dpi),(min-resolution:1.5dppx){.dropzone .dz-preview .dz-error-mark,.dropzone .dz-preview .dz-success-mark,.dropzone-previews .dz-preview .dz-error-mark,.dropzone-previews .dz-preview .dz-success-mark{background-image:url(../images/spritemap@2x.png);-webkit-background-size:428px 406px;-moz-background-size:428px 406px;background-size:428px 406px}}.dropzone .dz-preview .dz-error-mark span,.dropzone .dz-preview .dz-success-mark span,.dropzone-previews .dz-preview .dz-error-mark span,.dropzone-previews .dz-preview .dz-success-mark span{display:none}.dropzone .dz-preview .dz-error-mark,.dropzone-previews .dz-preview .dz-error-mark{background-position:-268px -123px}.dropzone .dz-preview .dz-success-mark,.dropzone-previews .dz-preview .dz-success-mark{background-position:-268px -163px}.dropzone .dz-preview .dz-progress .dz-upload,.dropzone-previews .dz-preview .dz-progress .dz-upload{-webkit-animation:loading .4s linear infinite;-moz-animation:loading .4s linear infinite;-o-animation:loading .4s linear infinite;-ms-animation:loading .4s linear infinite;animation:loading .4s linear infinite;-webkit-transition:width .3s ease-in-out;-moz-transition:width .3s ease-in-out;-o-transition:width .3s ease-in-out;-ms-transition:width .3s ease-in-out;transition:width .3s ease-in-out;-webkit-border-radius:2px;border-radius:2px;position:absolute;top:0;left:0;width:0;height:100%;background-image:url(../images/spritemap.png);background-repeat:repeat-x;background-position:0 -400px}@media all and (-webkit-min-device-pixel-ratio:1.5),(min--moz-device-pixel-ratio:1.5),(-o-min-device-pixel-ratio:1.5/1),(min-device-pixel-ratio:1.5),(min-resolution:138dpi),(min-resolution:1.5dppx){.dropzone .dz-preview .dz-progress .dz-upload,.dropzone-previews .dz-preview .dz-progress .dz-upload{background-image:url(../images/spritemap@2x.png);-webkit-background-size:428px 406px;-moz-background-size:428px 406px;background-size:428px 406px}}.dropzone .dz-preview.dz-success .dz-progress,.dropzone-previews .dz-preview.dz-success .dz-progress{display:block;opacity:0;-ms-filter:"alpha(Opacity=0)";filter:alpha(opacity=0);-webkit-transition:opacity .4s ease-in-out;-moz-transition:opacity .4s ease-in-out;-o-transition:opacity .4s ease-in-out;-ms-transition:opacity .4s ease-in-out;transition:opacity .4s ease-in-out}.dropzone .dz-preview .dz-error-message,.dropzone-previews .dz-preview .dz-error-message{display:block;opacity:0;-ms-filter:"alpha(Opacity=0)";filter:alpha(opacity=0);-webkit-transition:opacity .3s ease-in-out;-moz-transition:opacity .3s ease-in-out;-o-transition:opacity .3s ease-in-out;-ms-transition:opacity .3s ease-in-out;transition:opacity .3s ease-in-out}.dropzone .dz-preview:hover.dz-error .dz-error-message,.dropzone-previews .dz-preview:hover.dz-error .dz-error-message{opacity:1;-ms-filter:none;filter:none}.dropzone a.dz-remove,.dropzone-previews a.dz-remove{background-image:-webkit-linear-gradient(top,#fafafa,#eee);background-image:-moz-linear-gradient(top,#fafafa,#eee);background-image:-o-linear-gradient(top,#fafafa,#eee);background-image:-ms-linear-gradient(top,#fafafa,#eee);background-image:linear-gradient(to bottom,#fafafa,#eee);-webkit-border-radius:2px;border-radius:2px;border:1px solid #eee;text-decoration:none;display:block;padding:4px 5px;text-align:center;color:#aaa;margin-top:26px}.dropzone a.dz-remove:hover,.dropzone-previews a.dz-remove:hover{color:#666}@-moz-keyframes loading{from{background-position:0 -400px}to{background-position:-7px -400px}}@-webkit-keyframes loading{from{background-position:0 -400px}to{background-position:-7px -400px}}@-o-keyframes loading{from{background-position:0 -400px}to{background-position:-7px -400px}}@keyframes loading{from{background-position:0 -400px}to{background-position:-7px -400px}}
@@ -172,7 +175,7 @@ abstract class FSObject
 {
     
     public $name;
-    public $location;
+    public $path;
     
     public $creationtime;
     public $modtime;
@@ -186,9 +189,11 @@ abstract class FSObject
     public $executable;
     
     function __construct($path) {
-        $this->location = $path;
+        $this->path = realpath($path);
+        //$this->path = $path;
         
-        $this->name = $path;
+        $this->name = basename($path);
+        //print("name: ". $this->name.'<br>');
         
         $this->size = $this->querySize();
         $this->type = $this->queryType();
@@ -204,7 +209,7 @@ abstract class FSObject
     abstract protected function queryType();
     
     private function queryTimestamps() {
-        return array(filectime($this->location), filemtime($this->location), fileatime($this->location));
+        return array(filectime($this->path), filemtime($this->path), fileatime($this->path));
     }
     
     public function getPrettySize() {
@@ -215,20 +220,20 @@ abstract class FSObject
         return sprintf("%.{$decimals}f", $this->size / pow(1024, $factor)) . @$sz[$factor];
     }
     
-    public function splitLocation() {
-        return explode(PATH_SEPARATOR, $this->location);
+    public function splitpath() {
+        return explode(PATH_SEPARATOR, $this->path);
     }
     
     public function isReadable() {
-        return is_readable($this->location);
+        return is_readable($this->path);
     }
     
     public function isWriteable() {
-        return is_writable($this->location);
+        return is_writable($this->path);
     }
     
     public function isExecutable() {
-        return is_executable($this->location);
+        return is_executable($this->path);
     }
     
     public function getPrettyMTime() {
@@ -260,15 +265,27 @@ class Directory extends FSObject
     }
     
     protected function querySize() {
-		
+
+    	if($this->name == '.' || $this->name == '..')
+    		return 0;
+
 		$size = 0;
-	    $files = glob($directory.'/*');
-	    foreach($files as $path){
+	    $files = scandir($this->path);
+
+	    foreach($files as $p){
+	    	$path = $this->path.'/'.$p;
 	        is_file($path) && $size += filesize($path);
-	        is_dir($path) && $this->querySize($path);
+	        $p != '.' && $p != '..' && is_dir($path) && $size += (new Directory($path))->querySize();
 	    }
 	    return $size;
 
+    }
+
+    public function isVirtualDirectory() {
+    	if($this->location=='.' || $this->location=='..')
+    		return true;
+
+    	return false;
     }
 
 }
@@ -289,7 +306,7 @@ class File extends FSObject
     }
     
     protected function querySize() {
-        return filesize($this->location);
+        return filesize($this->path);
     }
 }
 
@@ -297,19 +314,23 @@ class File extends FSObject
 class App
 {
     
-    var $current_dir;
+    public $currentdir = '';
     public $filelist = array();
     
     public static function getInstance() {
         static $instance = null;
         if (null === $instance) {
             $instance = new static ();
+            $instance->parse_path();
+
+
         }
         
         return $instance;
     }
     
     protected function __construct() {
+    	
     }
     
     private function __clone() {
@@ -319,40 +340,41 @@ class App
     }
     
     public function listFiles() {
-        $files = scandir('.');
+
+        $files = scandir($this->currentdir);
+        print_r($files);
         foreach ($files as $file) {
+
+        	$file = $this->currentdir.'/'.$file;
+
             if (is_dir($file)) {
                 $this->filelist[] = new Directory($file);
             } else $this->filelist[] = new File($file);
         }
     }
     
-    TODO function parse_path() {
+    public function parse_path() { //TODO
 
         $path = array();
-        if (isset($_SERVER['REQUEST_URI'])) {
-
-            
-            $path['base'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '\/');
-            $path['call_utf8'] = substr(urldecode($request_path[0]), strlen($path['base']) + 1);
-            $path['call'] = utf8_decode($path['call_utf8']);
-            if($path['call'] == basename($_SERVER['PHP_SELF'])) {
-                $path['call'] = '';
-            }
-            $path['call_parts'] = explode('/', $path['call']);
-            
-            $path['query_utf8'] = urldecode($request_path[1]);
-            $path['query'] = utf8_decode(urldecode($request_path[1]));
-            $vars = explode('&', $path['query']);
-            foreach ($vars as $var) {
-                $t = explode('=', $var);
-                $path['query_vars'][$t[0]] = $t[1];
-            }
-
+        //phpinfo();
+        if(isset($_SERVER["PATH_INFO"])) {
+        	$this->currentdir = $_SERVER["PATH_INFO"];
+        	$this->currentdir = substr($this->currentdir, 1);
         }
+
+        if($this->currentdir == '') 
+        	$this->currentdir = '.';
+
+        print_r($this->currentdir);
 
         return $path;
     }
+
+    public static function site_url($path) {
+    	$url = "http://".$_SERVER["SERVER_NAME"].$_SERVER["SCRIPT_NAME"].'/'.$path;
+    	return $url;
+    }
+
 }
 
 abstract class UIElement 
@@ -362,7 +384,7 @@ abstract class UIElement
 	protected $css_class = '';
 	protected $css_id = '';
 
-	public function renderHTML();
+	public abstract function renderHTML();
 
 	public function setClass($class) {
 		$this->css_class = $class;
@@ -393,10 +415,10 @@ abstract class UIElement
 
 	public function getHTMLID() {
 
-		if($this->id_class == '')
+		if($this->css_id == '')
 			return '';
 
-		return ' id="'.$this->id_class.'"';
+		return ' id="'.$this->css_id.'"';
 
 	}
 
@@ -437,7 +459,7 @@ class UIIcon extends UIElement
 
 	public function renderHTML() {
 		
-		$this->html .= '<span href="'.$this->href.'" class="icon '.$this->icon.$this->getHTMLClass(true).'"'..$this->getHTMLID().'>'.$this->text.'</a>';
+		$this->html .= '<span href="'.$this->href.'" class="icon '.$this->icon.$this->getHTMLClass(true).'"'.$this->getHTMLID().'></span>';
 
 		return $this->html;
 
@@ -521,7 +543,7 @@ class UITable extends UIElement
 	}
 
 	public function renderHTML() {
-		if($this->css_class) !=
+		//if($this->css_class) !=
 		$this->html .= '<table'.$this->getHTMLID().$this->getHTMLClass().'>';
 			$this->renderHead();
 			$this->renderBody();
@@ -540,10 +562,10 @@ class UI
 
     private static function renderFileOperations($path) {
 
-    	$html  = new UILink('index.php/delete/'.$path, 'Delete')   -> renderHTML();
-    	$html .= new UILink('index.php/rename/'.$path, 'Rename')   -> renderHTML();
-    	$html .= new UILink('index.php/move/'.$path, 'Move')       -> renderHTML();
-    	$html .= new UILink('index.php/details/'.$path, 'Details') -> renderHTML();
+    	$html  = (new UILink('index.php/delete/'.$path, 'Delete'))   -> renderHTML();
+    	$html .= (new UILink('index.php/rename/'.$path, 'Rename'))  -> renderHTML();
+    	$html .= (new UILink('index.php/move/'.$path, 'Move'))       -> renderHTML();
+    	$html .= (new UILink('index.php/details/'.$path, 'Details')) -> renderHTML();
 
     	return $html;
     }
@@ -556,22 +578,27 @@ class UI
         $table = new UITable(array('name', 'size', 'modified', 'permissions', 'actions'), '', 'main-table');
 
 		foreach ($app->filelist as $item) {
+			if($item->name == '.')
+				continue;
+			//print_r($item);
+			$link = new UILink(App::site_url(App::getInstance()->currentdir.'/'.$item->name),$item->name);
 			$table->addRow(
+
 				array(
-					new UIIcon($item->queryType())->renderHTML().$item->name,
-					$item->getPrettySize(),
+					(new UIIcon($item->queryType()))->renderHTML().$link->renderHTML(),
+					($item->name != '.' && $item->name != '..')?$item->getPrettySize():'--',
 					$item->getPrettyMTime(),
 					($item->readable ? 'read ' : '') . ($item->writable ? 'write ' : '') . ($item->executable ? 'execute' : ''),
-					UI::renderFileOperations()
+					UI::renderFileOperations($item->path)
 					));
 		}
 
-		$body_text .= $table->renderHTML();
+		UI::$body_text .= $table->renderHTML();
 
     }
 
     public static function renderBody() {
-    	return App::body_text;
+    	return UI::$body_text;
     }
 
 
@@ -626,9 +653,10 @@ td {
 	</style>
 </head>
 <body>
+	<?=UI::renderFileList()?>
 	<?=UI::renderBody()?>
 
-	<p><?php echo ("Rendered in " . sprintf("%.3f", (microtime(true) - $start)) . "ms"); ?></p>
+	<p><?php echo ("Rendered in " . sprintf("%.3f", (microtime(true) - $start)) . "ms, RAM: ".(memory_get_peak_usage(TRUE)/1024)."kb"); ?></p>
 	<script>
 //<![CDATA[
 
