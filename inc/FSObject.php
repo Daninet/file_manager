@@ -2,7 +2,7 @@
 
 namespace QCFileManager;
 
-abstract class FSObject
+abstract class FSObject 
 {
     
     public $name;
@@ -20,12 +20,11 @@ abstract class FSObject
     public $executable;
     
     function __construct($path) {
+
         $this->path = realpath($path);
-        //$this->path = $path;
-        
+
         $this->name = basename($path);
-        //print("name: ". $this->name.'<br>');
-        
+
         $this->size = $this->querySize();
         $this->type = $this->queryType();
         

@@ -6,16 +6,20 @@ namespace QCFileManager;
 class App
 {
     
-    public $currentdir = '';
+    public $currentpath = '';
+
     public $filelist = array();
+    public $currentfile = null;
     
     public static function getInstance() {
         static $instance = null;
         if (null === $instance) {
-            $instance = new static ();
-            $instance->parse_path();
+            $instance = new static();
 
-
+            if(is_dir($instance->currentpath))
+                $instance->listFiles();
+            else
+                $instance->currentfile = new File($instance->currentpath);
         }
         
         return $instance;
@@ -30,14 +34,39 @@ class App
     
     private function __wakeup() {
     }
-    
-    public function listFiles() {
 
-        $files = scandir($this->currentdir);
+    private function handleAction() {
+
+        if($this->currentfile !== null && isset($_POST['delete']) ) {
+
+            $this->currentfile->delete();
+            URLHandler::redirect('..');
+
+        }
+
+        if($this->currentfile !== null && isset($_POST['rename'])) {
+
+            $this->currentfile->rename($_POST['rename']);
+            URLHandler::redirect('.');
+            
+        }
+
+        
+
+
+
+    }
+
+    
+    private function listFiles() {
+
+
+
+        $files = scandir($this->currentpath);
         print_r($files);
         foreach ($files as $file) {
 
-        	$file = $this->currentdir.'/'.$file;
+        	$file = $this->currentpath.'/'.$file;
 
             if (is_dir($file)) {
                 $this->filelist[] = new Directory($file);
@@ -45,26 +74,6 @@ class App
         }
     }
     
-    public function parse_path() { //TODO
-
-        $path = array();
-        //phpinfo();
-        if(isset($_SERVER["PATH_INFO"])) {
-        	$this->currentdir = $_SERVER["PATH_INFO"];
-        	$this->currentdir = substr($this->currentdir, 1);
-        }
-
-        if($this->currentdir == '') 
-        	$this->currentdir = '.';
-
-        print_r($this->currentdir);
-
-        return $path;
-    }
-
-    public static function site_url($path) {
-    	$url = "http://".$_SERVER["SERVER_NAME"].$_SERVER["SCRIPT_NAME"].'/'.$path;
-    	return $url;
-    }
+    
 
 }
