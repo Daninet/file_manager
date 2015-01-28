@@ -41,6 +41,7 @@ abstract class FSObject
     private function queryTimestamps() {
         return array(filectime($this->path), filemtime($this->path), fileatime($this->path));
     }
+
     
     public function getPrettySize() {
         
@@ -65,11 +66,10 @@ abstract class FSObject
     public function isExecutable() {
         return is_executable($this->path);
     }
-    
-    public function getPrettyMTime() {
-        
-        $now = time();
-        $diff = time() - $this->modtime;
+
+    private function prettyTime($time) {
+
+        $diff = time() - $time;
         $chunks = array(array(60 * 60, 'hour'), array(60, 'minute'), array(1, 'second'));
         
         for ($i = 0, $j = count($chunks); $i < $j; $i++) {
@@ -84,5 +84,12 @@ abstract class FSObject
         else if ($name == 'minute' && $count > 3) return ($count == 1) ? '1 ' . $name . ' ago' : "$count {$name}s ago";
         
         return date($GLOBALS['config']['date_format'], $this->modtime);
+
+    }
+    
+    public function getPrettyMTime() {
+        
+        return $this->prettyTime($this->modtime);
+
     }
 }

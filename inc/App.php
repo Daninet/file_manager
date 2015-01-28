@@ -30,12 +30,16 @@ class App
     }
     
     private function __clone() {
+
     }
     
     private function __wakeup() {
+
     }
 
     private function handleAction() {
+
+        
 
         if($this->currentfile !== null && isset($_POST['delete']) ) {
 
@@ -51,16 +55,14 @@ class App
             
         }
 
-        
-
-
+        if($this->currentfile !== null && isset($_POST[''])) {
+            
+        }
 
     }
 
     
     private function listFiles() {
-
-
 
         $files = scandir($this->currentpath);
         print_r($files);
@@ -72,6 +74,7 @@ class App
                 $this->filelist[] = new Directory($file);
             } else $this->filelist[] = new File($file);
         }
+
     }
     
     

@@ -55,7 +55,6 @@ class ImageResizer
     public function outputToBrowser() {
         
         header('Content-Type: image/jpeg');
-        
         imagejpeg($im, NULL, $this->jpg_quality);
         
         // Free up memory
